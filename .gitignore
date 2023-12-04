@@ -1,9 +1,14 @@
 .venv/
+
+dist/
+
 .pytest_cache/
 __pycache__/
 *.py[cod]
+
 .coverage
 htmlcov/
+
 *.lock
 
 .idea/
