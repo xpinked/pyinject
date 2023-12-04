@@ -30,7 +30,7 @@ def main(service_a: Annotated[ServiceA, Depends()], service_b: Annotated[Service
 
 ## Installation
 
-You can install all of these with `pip install pyinject`.
+You can install all of these with `pip install git+https://github.com/xpinked/pyinject.git`.
 
 ## License
 
