@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "pyinject"
+version = "1.0.0"
+description = "Python Dependency Injection made easy, Inspired by FastAPI."
+authors = ["Udi Shalev"]
+license = "GPL-3.0 license"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+pytest-cov = "^4.1.0"
+black = "^23.11.0"
+ipython = "^8.18.1"
+mypy = "^1.7.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
