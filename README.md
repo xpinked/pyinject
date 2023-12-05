@@ -28,6 +28,8 @@ def main(service_a: Annotated[ServiceA, Depends()], service_b: Annotated[Service
 
 ```
 
+You can checkout more examples in [Examples](https://github.com/xpinked/pyinject/tree/main/examples)
+
 ## Installation
 
 You can install all of these with `pip install git+https://github.com/xpinked/pyinject.git`.
