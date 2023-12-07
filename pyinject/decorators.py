@@ -3,7 +3,7 @@ from functools import wraps
 from typing import Annotated, get_args, get_origin
 
 from ._dependency import _Dependency
-from ._resolver import resolver
+from ._resolver import dependencies_manager
 
 
 def AutoWired(func):
@@ -33,7 +33,7 @@ def AutoWired(func):
                 if _dependency.callable is None:
                     _dependency.callable = _type
 
-                kwargs[param_name] = resolver.get_dependency_value(_dependency)
+                kwargs[param_name] = dependencies_manager.get_dependency_value(_dependency)
 
         return func(*args, **kwargs)
 

@@ -10,12 +10,12 @@ class _Dependency:
     cache: bool = True
 
     @classmethod
-    def validate(cls, /, _value: Any) -> None:
+    def validate(cls, /, _value: object) -> None:
         """
         Validates that the given value is a _Dependency object
 
         Args:
-            _value (Any): A value to validate
+            _value (object): A value to validate
 
         Raises:
             ValueError: If the given value is not a _Dependency object
