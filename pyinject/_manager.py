@@ -39,7 +39,8 @@ class DependenciesManager(metaclass=SingletonMetaClass):
             return self.dependency_overrides[_dependency.callable]()
 
         if _dependency.callable in self.cached_dependencies_values and _dependency.cache:
-            return self.cached_dependencies_values[_dependency.callable]
+            with self._caching_lock:
+                return self.cached_dependencies_values[_dependency.callable]
 
         value = _dependency.callable()
 

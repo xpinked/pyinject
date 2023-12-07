@@ -3,7 +3,7 @@ from functools import wraps
 from typing import Annotated, get_args, get_origin
 
 from ._dependency import _Dependency
-from ._resolver import dependencies_manager
+from ._manager import dependencies_manager
 
 
 def AutoWired(func):
