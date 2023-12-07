@@ -1,5 +1,4 @@
-from dataclasses import dataclass, field
-from threading import Lock
+from threading import Lock, local
 from typing import Any, Callable
 
 from ._dependency import _Dependency
@@ -8,18 +7,29 @@ from ._meta import SingletonMetaClass
 OverridesMapping = dict[Callable[..., Any], Callable[..., Any]]
 
 
-@dataclass(slots=True)
 class DependenciesManager(metaclass=SingletonMetaClass):
     """
-    A dependency resolver that can be used to resolve dependencies from a callable,
-    caching them if needed
+    A class that manages dependencies and their caching
+
+    uses a singleton metaclass to ensure only one instance of this class exists
     """
 
-    cached_dependencies_values: dict[Callable[..., Any], Any] = field(default_factory=dict)
-    dependency_overrides: OverridesMapping = field(default_factory=dict)
+    __slots__ = ["cached_dependencies_values", "_caching_lock", "_overrides_lock"]
+    _local = local()
 
-    _caching_lock = Lock()
-    _overrides_lock = Lock()
+    def __init__(self) -> None:
+        self.cached_dependencies_values: dict[Callable[..., Any], Any] = {}
+        self._caching_lock = Lock()
+        self._overrides_lock = Lock()
+
+    @property
+    def dependency_overrides(self) -> OverridesMapping:
+        _overrides: OverridesMapping | None = getattr(self._local, "overrides", None)
+
+        if _overrides is None:
+            setattr(self._local, "overrides", {})
+
+        return getattr(self._local, "overrides")
 
     def get_dependency_value(self, _dependency: _Dependency) -> Any:
         """
@@ -35,11 +45,12 @@ class DependenciesManager(metaclass=SingletonMetaClass):
         if _dependency.callable is None:
             raise ValueError("Dependency cannot be None, please provide a callable")
 
-        if _dependency.callable in self.dependency_overrides:
-            return self.dependency_overrides[_dependency.callable]()
+        with self._overrides_lock:
+            if _dependency.callable in self.dependency_overrides:
+                return self.dependency_overrides[_dependency.callable]()
 
-        if _dependency.callable in self.cached_dependencies_values and _dependency.cache:
-            with self._caching_lock:
+        with self._caching_lock:
+            if _dependency.callable in self.cached_dependencies_values and _dependency.cache:
                 return self.cached_dependencies_values[_dependency.callable]
 
         value = _dependency.callable()
@@ -51,25 +62,23 @@ class DependenciesManager(metaclass=SingletonMetaClass):
         return value
 
     def override_dependencies(self, overrides: OverridesMapping) -> OverridesMapping:
-        self._overrides_lock.acquire()
+        with self._overrides_lock:
+            old_overrides: OverridesMapping = {}
 
-        old_overrides: OverridesMapping = {}
+            for dep, new_dep in overrides.items():
+                if dep in self.dependency_overrides:
+                    old_overrides[dep] = self.dependency_overrides[dep]
+                self.dependency_overrides[dep] = new_dep
 
-        for dep, new_dep in overrides.items():
-            if dep in self.dependency_overrides:
-                old_overrides[dep] = self.dependency_overrides[dep]
-            self.dependency_overrides[dep] = new_dep
+            return old_overrides
 
-        return old_overrides
-
-    def restore_dependencies(self, overrides: OverridesMapping, old_overrides: OverridesMapping):
-        for dep in overrides.keys():
-            if dep in old_overrides:
-                self.dependency_overrides[dep] = old_overrides.pop(dep)
-            else:
-                del self.dependency_overrides[dep]
-
-        self._overrides_lock.release()
+    def restore_dependencies(self, overrides: OverridesMapping, old_overrides: OverridesMapping) -> None:
+        with self._overrides_lock:
+            for dep in overrides.keys():
+                if dep in old_overrides:
+                    self.dependency_overrides[dep] = old_overrides.pop(dep)
+                else:
+                    del self.dependency_overrides[dep]
 
 
 if "resolver" not in globals():
