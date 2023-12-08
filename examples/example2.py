@@ -4,7 +4,7 @@ from typing import Annotated
 
 from typing_extensions import override
 
-from pyinject import AutoWired, Depends, run_program as _
+from pyinject import AutoWired, Depends, execute as _
 
 
 class Country(Enum):
@@ -50,7 +50,7 @@ class CalculateSalaryStrategyFactory:
         raise ValueError(f"No salary strategy for country: {country}")
 
 
-@AutoWired
+@AutoWired()
 def calculate_employee_salary(
     employee: Employee,
     strategy_factory: Annotated[CalculateSalaryStrategyFactory, Depends()],

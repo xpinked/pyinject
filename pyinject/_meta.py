@@ -2,7 +2,7 @@ from typing import Any
 
 
 class SingletonMetaClass(type):
-    _instances = {}
+    _instances: dict["SingletonMetaClass", Any] = {}
     __allow_reinitialization__: bool = False
 
     def __call__(cls, *args, **kwargs) -> Any:
