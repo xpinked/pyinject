@@ -1,6 +1,9 @@
-from typing import Any, Callable
+from typing import Any, Callable, TypeVar
 
 from ._dependency import _Dependency
+from .manager import DependenciesManager
+
+R = TypeVar("R", bound=Any)
 
 
 def Depends(callable: Callable[..., Any] | None = None, cache: bool = True) -> _Dependency:
@@ -17,5 +20,15 @@ def Depends(callable: Callable[..., Any] | None = None, cache: bool = True) -> _
     return _Dependency(callable, cache)
 
 
-def run_program(starting_point: Callable[..., Any], *args, **kwargs) -> Any:
+def get_default_manager() -> DependenciesManager:
+    from .manager import default_manager
+
+    return default_manager
+
+
+def create_manager() -> DependenciesManager:
+    return DependenciesManager()
+
+
+def execute(starting_point: Callable[..., R], *args: Any, **kwargs: Any) -> R:
     return starting_point(*args, **kwargs)
