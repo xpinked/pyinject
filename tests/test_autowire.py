@@ -11,9 +11,9 @@ def bar():
     return 2
 
 
-@AutoWired
-def func(foor: Annotated[int, Depends(foo)], bar: Annotated[int, Depends(bar)]):
-    return foor + bar
+@AutoWired()
+def func(foo: Annotated[int, Depends(foo)], bar: Annotated[int, Depends(bar)]):
+    return foo + bar
 
 
 def test_autowired__functions() -> None:
