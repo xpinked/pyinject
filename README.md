@@ -36,4 +36,4 @@ You can install all of these with `pip install git+https://github.com/xpinked/py
 
 ## License
 
-This project is licensed under the terms of the GPL-3.0 license license.
+This project is licensed under the terms of the MIT license.
