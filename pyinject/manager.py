@@ -1,35 +1,25 @@
-from threading import Lock, local
+from threading import Lock
 from typing import Any, Callable
 
 from ._dependency import _Dependency
-from ._meta import SingletonMetaClass
 
 OverridesMapping = dict[Callable[..., Any], Callable[..., Any]]
 
 
-class DependenciesManager(metaclass=SingletonMetaClass):
+class DependenciesManager:
     """
     A class that manages dependencies and their caching
 
     uses a singleton metaclass to ensure only one instance of this class exists
     """
 
-    __slots__ = ["cached_dependencies_values", "_caching_lock", "_overrides_lock"]
-    _local = local()
+    __slots__ = ["cached_dependencies_values", "_caching_lock", "_overrides_lock", "dependency_overrides"]
 
     def __init__(self) -> None:
         self.cached_dependencies_values: dict[Callable[..., Any], Any] = {}
         self._caching_lock = Lock()
         self._overrides_lock = Lock()
-
-    @property
-    def dependency_overrides(self) -> OverridesMapping:
-        _overrides: OverridesMapping | None = getattr(self._local, "overrides", None)
-
-        if _overrides is None:
-            setattr(self._local, "overrides", {})
-
-        return getattr(self._local, "overrides")
+        self.dependency_overrides: OverridesMapping = {}
 
     def get_dependency_value(self, _dependency: _Dependency) -> Any:
         """
@@ -62,6 +52,17 @@ class DependenciesManager(metaclass=SingletonMetaClass):
         return value
 
     def override_dependencies(self, overrides: OverridesMapping) -> OverridesMapping:
+        """
+        Overrides the dependencies with the provided overrides.
+
+        Args:
+            overrides (OverridesMapping): A dictionary containing the dependencies to be overridden.
+
+        Returns:
+            OverridesMapping: A dictionary containing the previous overrides that were replaced.
+
+        """
+
         with self._overrides_lock:
             old_overrides: OverridesMapping = {}
 
@@ -73,6 +74,16 @@ class DependenciesManager(metaclass=SingletonMetaClass):
             return old_overrides
 
     def restore_dependencies(self, overrides: OverridesMapping, old_overrides: OverridesMapping) -> None:
+        """
+        Restores the overridden dependencies to their original values based on the provided overrides and old_overrides mappings.
+
+        Args:
+            overrides (OverridesMapping): A dictionary containing the current overrides for the dependencies.
+            old_overrides (OverridesMapping): A dictionary containing the previous overrides for the dependencies.
+
+        Returns:
+            None
+        """
         with self._overrides_lock:
             for dep in overrides.keys():
                 if dep in old_overrides:
@@ -81,5 +92,5 @@ class DependenciesManager(metaclass=SingletonMetaClass):
                     del self.dependency_overrides[dep]
 
 
-if "resolver" not in globals():
-    dependencies_manager = DependenciesManager()
+if "default_manager" not in globals():
+    default_manager = DependenciesManager()
