@@ -107,4 +107,4 @@ You can checkout more code examples in [Examples](https://github.com/xpinked/pyi
 
 ## License
 
-This project is licensed under the terms of the GPL-3.0 license.
+This project is licensed under the terms of the MIT license.
