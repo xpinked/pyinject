@@ -9,15 +9,18 @@ R = TypeVar("R", bound=Any)
 P = ParamSpec("P")
 
 
-def AutoWired(*, manager: DependenciesManager = default_manager) -> Callable[[Callable[P, R]], Callable[P, R]]:
+def AutoWired(*, manager: DependenciesManager = default_manager) -> Callable[[Callable[P, R]], Callable[P, R]]:  # noqa: N802
     """
     A decorator that resolves dependencies from a callable and injects them to arguments Annotations
 
     Args:
+    ----
         manager (DependenciesManager, optional): A manager that holds the dependencies. Defaults to default_manager.
 
     Returns:
+    -------
         Callable[[Callable[P, R]], Callable[P, R]]: A decorator that resolves dependencies
+
     """
 
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
@@ -39,6 +42,10 @@ def AutoWired(*, manager: DependenciesManager = default_manager) -> Callable[[Ca
                         _dependency.callable = _type
 
                     kwargs[param_name] = manager.get_dependency_value(_dependency)
+                    continue
+
+                if param.annotation is not None and param.annotation in manager.dependency_overrides:
+                    kwargs[param_name] = manager.get_dependency_value(_Dependency(callable=param.annotation))
 
             return func(*args, **kwargs)
 

@@ -20,7 +20,7 @@ def foo_override():
     return 2
 
 
-@pytest.fixture
+@pytest.fixture()
 def manager() -> DependenciesManager:
     return create_manager()
 
@@ -70,3 +70,14 @@ def test_autowired__overriding_manager_overriding_dependency(manager: Dependenci
     """Executing function in isolation with overridden manager"""
     with DependencyOverrider({foo: foo_override}, manager=manager) as overrider:
         assert overrider.execute(func2) == 4
+
+
+def test_autowired__overriding_manager_overriding_dependency_nested() -> None:
+    """Executing function in isolation with overridden manager"""
+
+    @AutoWired()
+    def func_nested(foo: Annotated[int, Depends(foo)], func: Annotated[int, Depends(func)]) -> int:
+        return foo + func
+
+    with DependencyOverrider({foo: foo_override}):
+        assert _(func_nested) == 6
