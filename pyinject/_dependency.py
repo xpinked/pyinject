@@ -15,16 +15,19 @@ class _Dependency:
         Validates that the given value is a _Dependency object
 
         Args:
+        ----
             _value (object): A value to validate
 
         Raises:
+        ------
             ValueError: If the given value is not a _Dependency object
+
         """
         if not isinstance(_value, _Dependency):
-            raise ValueError(
+            raise TypeError(
                 "Dependency must be a _Dependency object,\n"
                 "please use the Depends() function to define a dependency.\n"
                 "Examples:\n"
                 "1. Annotated[MyDependency, Depends()] \n"
-                "2. Annotated[MyDependency, Depends(get_my_dependency)]"
+                "2. Annotated[MyDependency, Depends(get_my_dependency)]",
             )
