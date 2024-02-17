@@ -62,7 +62,7 @@ class _AutoWired:
         new_kwargs = original_kwargs.copy()
 
         for param_name, param in sig.parameters.items():
-            if param_name in bound_args.arguments:
+            if param_name in bound_args.arguments or param.annotation is inspect.Parameter.empty:
                 continue
 
             # Case of Annotated[<type>, Dependency(...)]
@@ -73,7 +73,7 @@ class _AutoWired:
                 new_kwargs[param_name] = self.manager.get_dependency_value(_dependency)
 
             # Case of globally overridden dependency without Annotated[<type>, Dependency(...)]
-            elif param.annotation is not inspect.Parameter.empty and param.annotation in self.manager.dependency_overrides:
+            elif param.annotation in self.manager.dependency_overrides:
                 _dependency = _Dependency(callable=param.annotation, cache=False)
                 new_kwargs[param_name] = self.manager.get_dependency_value(_dependency)
 
