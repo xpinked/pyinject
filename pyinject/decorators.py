@@ -65,18 +65,17 @@ class _AutoWired:
             if param_name in bound_args.arguments:
                 continue
 
+            # Case of Annotated[<type>, Dependency(...)]
             if get_origin(param.annotation) is Annotated:
                 _type, _dependency = get_args(param.annotation)
                 _Dependency.validate(_dependency)
-
-                if _dependency.callable is None:
-                    _dependency.callable = _type
-
+                _dependency.callable = _dependency.callable or _type
                 new_kwargs[param_name] = self.manager.get_dependency_value(_dependency)
-                continue
 
-            if param.annotation in self.manager.dependency_overrides:
-                new_kwargs[param_name] = self.manager.get_dependency_value(_Dependency(callable=param.annotation))
+            # Case of globally overridden dependency without Annotated[<type>, Dependency(...)]
+            elif param.annotation is not inspect.Parameter.empty and param.annotation in self.manager.dependency_overrides:
+                _dependency = _Dependency(callable=param.annotation, cache=False)
+                new_kwargs[param_name] = self.manager.get_dependency_value(_dependency)
 
         return new_kwargs
 
