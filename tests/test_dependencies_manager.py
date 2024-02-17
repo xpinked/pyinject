@@ -1,7 +1,10 @@
+import abc
 from typing import Any, Literal
 
 import pytest
 
+from pyinject.decorators import AutoWired
+from pyinject.functions import execute, get_default_manager
 from pyinject.manager import DependenciesManager, OverridesMapping, _Dependency
 
 
@@ -78,7 +81,9 @@ def test_get_dependency_value_edge_cases(
     ids=lambda test_id: test_id,
 )
 def test_get_dependency_value_error_cases(
-    test_id: Literal["error-null-callable"], dependency: _Dependency, exception: type[ValueError]
+    test_id: Literal["error-null-callable"],
+    dependency: _Dependency,
+    exception: type[ValueError],
 ) -> None:
     manager = DependenciesManager()
 
@@ -118,3 +123,39 @@ def test_override_restore_dependencies(
     manager.restore_dependencies(overrides, old_overrides)
 
     assert manager.dependency_overrides == expected_overrides_after_restore
+
+
+def test_override_global_dependency_annotation__dependency_provider() -> None:
+    def dependency() -> Literal["dependency_value"]:
+        return "dependency_value"
+
+    @AutoWired()
+    def func(my_dependency: str) -> str:
+        return my_dependency
+
+    manager = get_default_manager()
+
+    manager.dependency_overrides[str] = dependency
+
+    assert execute(func) == "dependency_value"
+
+
+def test_override_global_dependency_annotation__class() -> None:
+    class ADependency(abc.ABC):
+        @abc.abstractmethod
+        def hello(self) -> str:
+            ...
+
+    class MyDependency(ADependency):
+        def hello(self) -> str:
+            return "dependency_value"
+
+    @AutoWired()
+    def func(my_dependency: ADependency) -> str:
+        return my_dependency.hello()
+
+    manager = get_default_manager()
+
+    manager.dependency_overrides[ADependency] = MyDependency
+
+    assert execute(func) == "dependency_value"

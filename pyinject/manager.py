@@ -7,11 +7,7 @@ OverridesMapping = dict[Callable[..., Any], Callable[..., Any]]
 
 
 class DependenciesManager:
-    """
-    A class that manages dependencies and their caching
-
-    uses a singleton metaclass to ensure only one instance of this class exists
-    """
+    """A class that manages dependencies and their caching."""
 
     __slots__ = ["cached_dependencies_values", "_caching_lock", "_overrides_lock", "dependency_overrides"]
 
@@ -26,12 +22,14 @@ class DependenciesManager:
         Given a _Dependency object, returns the dependency value, caching it if needed
 
         Args:
+        ----
             _dependency (_Dependency): A _Dependency object
 
         Returns:
+        -------
             Any: The dependency value
-        """
 
+        """
         if _dependency.callable is None:
             raise ValueError("Dependency cannot be None, please provide a callable")
 
@@ -56,13 +54,14 @@ class DependenciesManager:
         Overrides the dependencies with the provided overrides.
 
         Args:
+        ----
             overrides (OverridesMapping): A dictionary containing the dependencies to be overridden.
 
         Returns:
+        -------
             OverridesMapping: A dictionary containing the previous overrides that were replaced.
 
         """
-
         with self._overrides_lock:
             old_overrides: OverridesMapping = {}
 
@@ -78,14 +77,17 @@ class DependenciesManager:
         Restores the overridden dependencies to their original values based on the provided overrides and old_overrides mappings.
 
         Args:
+        ----
             overrides (OverridesMapping): A dictionary containing the current overrides for the dependencies.
             old_overrides (OverridesMapping): A dictionary containing the previous overrides for the dependencies.
 
         Returns:
+        -------
             None
+
         """
         with self._overrides_lock:
-            for dep in overrides.keys():
+            for dep in overrides:
                 if dep in old_overrides:
                     self.dependency_overrides[dep] = old_overrides.pop(dep)
                 else:
