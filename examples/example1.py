@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Annotated
 
-from pyinject import AutoWired, Depends, execute
+from pyinject import inject, Depends, execute
 
 
 @dataclass
@@ -28,7 +28,7 @@ class EmployeeService:
     Employee Service
     """
 
-    @AutoWired()
+    @inject()
     def __init__(
         self,
         _employee_repository: Annotated[EmployeeRepository, Depends()],
@@ -41,7 +41,7 @@ class EmployeeService:
         return self._employee_repository.get_employee()
 
 
-@AutoWired()
+@inject()
 def main(
     employee_service: Annotated[EmployeeService, Depends()],
     employee_birthday_service: Annotated[EmployeeBirthdayService, Depends()],

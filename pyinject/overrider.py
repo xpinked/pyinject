@@ -1,6 +1,6 @@
 import typing
 
-from .decorators import AutoWired, P, R
+from .decorators import inject, P, R
 from .manager import DependenciesManager, OverridesMapping, default_manager
 
 
@@ -26,4 +26,4 @@ class DependencyOverrider:
 
         Resolving the dependencies from the manager provided in the constructor.
         """
-        return AutoWired(manager=self.manager)(func)(*args, **kwargs)  # type: ignore reportCallIssue
+        return inject(manager=self.manager)(func)(*args, **kwargs)  # type: ignore reportCallIssue
