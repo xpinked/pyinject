@@ -3,7 +3,7 @@ from typing import Any, Literal
 
 import pytest
 
-from pyinject.decorators import AutoWired
+from pyinject.decorators import inject
 from pyinject.functions import execute, get_default_manager
 from pyinject.manager import DependenciesManager, OverridesMapping, _Dependency
 
@@ -129,7 +129,7 @@ def test_override_global_dependency_annotation__dependency_provider() -> None:
     def dependency() -> Literal["dependency_value"]:
         return "dependency_value"
 
-    @AutoWired()
+    @inject()
     def func(my_dependency: str) -> str:
         return my_dependency
 
@@ -150,7 +150,7 @@ def test_override_global_dependency_annotation__class() -> None:
         def hello(self) -> str:
             return "dependency_value"
 
-    @AutoWired()
+    @inject()
     def func(my_dependency: ADependency) -> str:
         return my_dependency.hello()
 

@@ -9,7 +9,7 @@ R = TypeVar("R", bound=Any)
 P = ParamSpec("P")
 
 
-class _AutoWired:
+class _Injector:
     """A class that resolves dependencies from a callable and injects them to arguments Annotations"""
 
     def __init__(self, manager: DependenciesManager) -> None:
@@ -80,7 +80,7 @@ class _AutoWired:
         return new_kwargs
 
 
-def AutoWired(*, manager: DependenciesManager = default_manager) -> Callable[[Callable[P, R]], Callable[P, R]]:  # noqa: N802
+def inject(*, manager: DependenciesManager = default_manager) -> Callable[[Callable[P, R]], Callable[P, R]]:  # noqa: N802
     """
     A decorator that resolves dependencies from a callable and injects them to arguments Annotations
 
@@ -93,4 +93,4 @@ def AutoWired(*, manager: DependenciesManager = default_manager) -> Callable[[Ca
         Callable[[Callable[P, R]], Callable[P, R]]: A decorator that resolves dependencies
 
     """
-    return _AutoWired(manager=manager)
+    return _Injector(manager=manager)

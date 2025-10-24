@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from pyinject import AutoWired, Depends
+from pyinject import inject, Depends
 
 
 def foo():
@@ -11,7 +11,7 @@ def bar():
     return 2
 
 
-@AutoWired()
+@inject()
 def func(foo: Annotated[int, Depends(foo)], bar: Annotated[int, Depends(bar)]):
     return foo + bar
 

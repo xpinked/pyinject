@@ -2,7 +2,7 @@ from typing import Annotated
 
 import pytest
 
-from pyinject import AutoWired, Depends, create_manager
+from pyinject import inject, Depends, create_manager
 from pyinject import execute as _
 from pyinject.manager import DependenciesManager
 from pyinject.overrider import DependencyOverrider
@@ -25,7 +25,7 @@ def manager() -> DependenciesManager:
     return create_manager()
 
 
-@AutoWired()
+@inject()
 def func(foo: Annotated[int, Depends(foo)], bar: Annotated[int, Depends(bar)]) -> int:
     return foo + bar
 
@@ -33,7 +33,7 @@ def func(foo: Annotated[int, Depends(foo)], bar: Annotated[int, Depends(bar)]) -
 test_manager = create_manager()
 
 
-@AutoWired(manager=test_manager)
+@inject(manager=test_manager)
 def func2(foo: Annotated[int, Depends(foo)], bar: Annotated[int, Depends(bar)]) -> int:
     return foo + bar
 
@@ -75,7 +75,7 @@ def test_autowired__overriding_manager_overriding_dependency(manager: Dependenci
 def test_autowired__overriding_manager_overriding_dependency_nested() -> None:
     """Executing function in isolation with overridden manager"""
 
-    @AutoWired()
+    @inject()
     def func_nested(foo: Annotated[int, Depends(foo)], func: Annotated[int, Depends(func)]) -> int:
         return foo + func
 

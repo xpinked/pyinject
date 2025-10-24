@@ -49,11 +49,11 @@ Lets say we want to use these services in a function.
 
 ```python
 from typing import Annotated
-from pyinject import AutoWired, Depends, execute
+from pyinject import inject, Depends, execute
 
 from .services import ServiceA, ServiceB
 
-@AutoWired()
+@inject()
 def func(service_a: Annotated[ServiceA, Depends()], service_b: Annotated[ServiceB, Depends()]):
     print(service_a.hello())
     print(service_b.hello())
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     execute(func)
 ```
 
-We have to use the `AutoWired` decorator to tell the dependency injector that this function should be executed with all its dependencies injected.
+We have to use the `inject` decorator to tell the dependency injector that this function should be executed with all its dependencies injected.
 
 and we have to use the `Annotated` type hint to tell the dependency injector what type of dependency we want to inject.
 
@@ -83,11 +83,11 @@ Otherwise, we can provide a provider function to the `Depends` class, which will
 
 ```python
 from typing import Annotated
-from pyinject import AutoWired, Depends, execute
+from pyinject import inject, Depends, execute
 
 from .services import ServiceC, get_service_c
 
-@AutoWired()
+@inject()
 def func_2(service_c: Annotated[ServiceC, Depends(get_service_c)]):
     print(service_c.hello())
 
